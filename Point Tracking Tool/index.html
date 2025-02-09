@@ -5,10 +5,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professional Point Tracking Tool</title>
+  <!-- Google Fonts -->
   <link
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
     rel="stylesheet"
   />
+  <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -16,6 +18,7 @@
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
+  <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     /* Videogame Theme CSS */
@@ -335,15 +338,42 @@
       </select>
       <!-- New input for the call's point value -->
       <label for="points-worth">Call Points Value:</label>
-      <input type="number" id="points-worth" class="lead-input" placeholder="Enter Call Points Value" value="2" required aria-label="Call Points Value">
+      <input
+        type="number"
+        id="points-worth"
+        class="lead-input"
+        placeholder="Enter Call Points Value"
+        value="2"
+        required
+        aria-label="Call Points Value"
+      >
       <label for="lead-input">Lead Number:</label>
-      <input type="text" id="lead-input" class="lead-input" placeholder="Enter Lead Number" required aria-label="Lead Number">
+      <input
+        type="text"
+        id="lead-input"
+        class="lead-input"
+        placeholder="Enter Lead Number"
+        required
+        aria-label="Lead Number"
+      >
       <label for="note-input">Note (Optional):</label>
-      <input type="text" id="note-input" class="lead-input" placeholder="Enter Note (Optional)" aria-label="Note (Optional)">
+      <input
+        type="text"
+        id="note-input"
+        class="lead-input"
+        placeholder="Enter Note (Optional)"
+        aria-label="Note (Optional)"
+      >
       <div class="controls-row">
-        <button class="add" onclick="processPoints('add')"> <i class="fas fa-plus"></i> Add </button>
-        <button class="bogo" onclick="processPoints('bogo')" aria-label="Bonus Points - Doubles the points awarded!" title="Bonus Points - Doubles the points awarded!">  <i class="fas fa-gem"></i> Bonus (2x) </button>
-        <button class="remove" onclick="processPoints('remove')"> <i class="fas fa-minus"></i> Remove </button>
+        <button class="add" onclick="processPoints('add')">
+          <i class="fas fa-plus"></i> Add
+        </button>
+        <button class="bogo" onclick="processPoints('bogo')" aria-label="Bonus Points - Doubles the points awarded!" title="Bonus Points - Doubles the points awarded!">
+          <i class="fas fa-gem"></i> Bonus (2x)
+        </button>
+        <button class="remove" onclick="processPoints('remove')">
+          <i class="fas fa-minus"></i> Remove
+        </button>
       </div>
     </div>
     <div class="transaction-details">
@@ -375,6 +405,7 @@
       <ul id="activity-list"></ul>
     </div>
   </div>
+  <!-- Audio for notifications -->
   <audio id="success-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
   <audio id="error-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
   <script>
@@ -385,6 +416,7 @@
       esign: 0
     };
     let transactions = [];
+
     // Load points, transactions, and activity log from localStorage if available
     window.onload = function() {
       if (localStorage.getItem('points')) {
@@ -400,34 +432,42 @@
         activityLog.forEach(entry => addActivity(entry));
       }
     };
-    // Update Points based on call points value multiplied by a factor
+
+    // Update points based on call points value multiplied by a factor
     function updatePoints(category, factor, transactionType, isBOGO = false) {
       const leadInput = document.getElementById('lead-input');
       const noteInput = document.getElementById('note-input');
       const pointsWorthInput = document.getElementById('points-worth');
       const callPointsValue = parseFloat(pointsWorthInput.value.trim());
+
       if (isNaN(callPointsValue) || callPointsValue <= 0) {
         showErrorMessage("Please enter a valid Call Points Value.");
         return;
       }
+
       const leadNumber = leadInput.value.trim();
       const note = noteInput.value.trim();
+
       if (leadNumber === "") {
         showErrorMessage("Please enter a Lead Number to " + transactionType.toLowerCase() + " points for " + capitalize(category) + ".");
         return;
       }
+
       const computedValue = callPointsValue * factor;
       if (computedValue < 0 && points[category] < Math.abs(computedValue)) {
         showErrorMessage(`Cannot remove ${Math.abs(computedValue)} points from ${capitalize(category)}. Not enough points.`);
         return;
       }
+
       points[category] += computedValue;
       updateDisplays();
       savePoints();
+
       const bogoText = isBOGO ? "BOGO: " : "";
       const actionText = computedValue > 0 ? "Added" : "Removed";
       const logMessage = `${bogoText}${actionText} ${Math.abs(computedValue)} points to ${capitalize(category)} (Lead: ${leadNumber}).`;
       const toastMessage = logMessage;
+
       if (computedValue > 0) {
         showSuccessMessage(toastMessage);
         triggerConfetti();
@@ -435,15 +475,20 @@
         showSuccessMessage(toastMessage);
         triggerConfetti('remove');
       }
+
       logActivity(logMessage);
       addTransaction(category, leadNumber, computedValue, note, isBOGO);
+
+      // Clear input fields after processing
       leadInput.value = "";
       noteInput.value = "";
     }
+
     // Process points based on action type
     function processPoints(action) {
       const categorySelect = document.getElementById('category-select');
       const selectedCategory = categorySelect.value;
+
       if (action === 'add') {
         updatePoints(selectedCategory, 1, 'Add');
       } else if (action === 'remove') {
@@ -452,16 +497,19 @@
         updatePoints(selectedCategory, 2, 'BOGO Add', true);
       }
     }
+
     function updateDisplays() {
       document.getElementById('phone-count').innerText = points.phone;
       document.getElementById('screens-count').innerText = points.screens;
       document.getElementById('esign-count').innerText = points.esign;
       updateTotal();
     }
+
     function updateTotal() {
       const total = points.phone + points.screens + points.esign;
       document.getElementById('total-points').innerText = total;
     }
+
     function resetPoints() {
       if (confirm("Are you sure you want to reset all points? This will clear all transactions and activity logs.")) {
         points = { phone: 0, screens: 0, esign: 0 };
@@ -476,9 +524,11 @@
         triggerConfetti();
       }
     }
+
     function clearTransactionsTable() {
       document.getElementById('transaction-table-body').innerHTML = '';
     }
+
     function addTransaction(category, leadNumber, pointsValue, note, isBOGO = false) {
       const transaction = {
         leadNumber: leadNumber,
@@ -492,46 +542,60 @@
       saveTransactions();
       addTransactionToTable(transaction);
     }
+
     function addTransactionToTable(transaction) {
       const tableBody = document.getElementById('transaction-table-body');
       const row = document.createElement('tr');
+
       if (transaction.isBOGO) {
         row.classList.add('bogo-transaction');
       }
+
       const leadCell = document.createElement('td');
       leadCell.textContent = transaction.leadNumber;
       row.appendChild(leadCell);
+
       const pointsCell = document.createElement('td');
       pointsCell.textContent = transaction.points;
       row.appendChild(pointsCell);
+
       const categoryCell = document.createElement('td');
       categoryCell.textContent = transaction.category;
       row.appendChild(categoryCell);
+
       const dateCell = document.createElement('td');
       dateCell.textContent = transaction.date;
       row.appendChild(dateCell);
+
       const noteCell = document.createElement('td');
       noteCell.textContent = transaction.note || "-";
       row.appendChild(noteCell);
+
       tableBody.prepend(row);
     }
+
     function savePoints() {
       localStorage.setItem('points', JSON.stringify(points));
     }
+
     function saveTransactions() {
       localStorage.setItem('transactions', JSON.stringify(transactions));
     }
+
     function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
+
     function showSuccessMessage(message) {
       createToast(message, 'success');
       playSound('success');
     }
+
     function showErrorMessage(message) {
       createToast(message, 'error');
       playSound('error');
     }
+
     function createToast(message, type) {
       const toastContainer = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -548,6 +612,7 @@
         }
       });
     }
+
     function logActivity(message) {
       const timestamp = new Date().toLocaleString();
       const activity = `${timestamp}: ${message}`;
@@ -559,16 +624,19 @@
       activityLog.push(activity);
       localStorage.setItem('activityLog', JSON.stringify(activityLog));
     }
+
     function addActivity(activity) {
       const activityList = document.getElementById('activity-list');
       const listItem = document.createElement('li');
       listItem.textContent = activity;
       activityList.prepend(listItem);
     }
+
     function clearActivityLog() {
       localStorage.removeItem('activityLog');
       document.getElementById('activity-list').innerHTML = '';
     }
+
     function triggerConfetti(action = 'add') {
       if (action === 'add') {
         confetti({
@@ -585,6 +653,7 @@
         });
       }
     }
+
     function playSound(type) {
       if (type === 'success') {
         document.getElementById('success-sound').play();
@@ -592,6 +661,7 @@
         document.getElementById('error-sound').play();
       }
     }
+
     function downloadTransactions() {
       if (transactions.length === 0) {
         showErrorMessage("No transactions to download.");
@@ -605,6 +675,7 @@
       link.setAttribute('download', 'transactions.csv');
       link.click();
     }
+
     function convertTransactionsToCSV(transactionsArray) {
       const headers = ["Lead Number", "Points", "Category", "Date Added", "Note", "BOGO"];
       const csvRows = [];
