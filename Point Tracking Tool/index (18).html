@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professional Point Tracking Tool</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    integrity="sha512-Fo3rlrQkTy0t+N7EwOKxvwIhGg7T+Kj0LhOyL1Uj7TTUQPeuBXb6ZdfLh5TfEyoZRH+Ygq8Er6snY3YEUcVfrw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    /* Videogame Theme CSS */
+    :root {
+      --bg-color: #1e1e2e;
+      --text-color: #e0e0e0;
+      --accent-color: #00bcd4;
+      --category-bg: #2c2c3c;
+      --control-bg: #3a3a4a;
+      --hover-bg: #454555;
+      --points-color: #ffc107;
+      --error-color: #f44336;
+      --success-color: #4caf50;
+      --bogo-color: #ff9800;
+      --border-color: #333345;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Roboto", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .container {
+      background-color: var(--category-bg);
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      max-width: 900px;
+      width: 100%;
+      position: relative;
+      transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+    .container:hover {
+      transform: translateY(-3px);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.2em;
+      color: var(--accent-color);
+      transition: color 0.3s ease;
+      text-shadow: 0 0 5px rgba(0, 188, 212, 0.8);
+    }
+    .points-overview {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .points-overview span {
+      display: inline-block;
+      margin: 0 15px;
+      font-size: 1.1em;
+      color: var(--text-color);
+    }
+    .points-display {
+      font-weight: bold;
+      color: var(--points-color);
+      font-size: 1.2em;
+      margin-top: 5px;
+      display: inline;
+      transition: color 0.3s ease;
+      text-shadow: 0 0 3px rgba(255, 193, 7, 0.7);
+    }
+    .single-input-area {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--category-bg);
+    }
+    .single-input-area label {
+      color: var(--text-color);
+      margin-right: 10px;
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1em;
+    }
+    .single-input-area select,
+    .single-input-area input.lead-input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background-color: var(--control-bg);
+      color: var(--text-color);
+      font-size: 1em;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 25px;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+      background-repeat: no-repeat;
+      background-position-x: 100%;
+      background-position-y: 5px;
+    }
+    .single-input-area select::-ms-expand {
+      display: none;
+    }
+    .single-input-area input.lead-input:focus,
+    .single-input-area select:focus {
+      border-color: var(--accent-color);
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+    }
+    .single-input-area .controls-row {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+    }
+    .single-input-area .controls-row button {
+      padding: 10px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      background-color: var(--control-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+    .single-input-area .controls-row button:hover {
+      background-color: var(--hover-bg);
+      transform: scale(1.02);
+    }
+    .single-input-area .controls-row button.add {
+      background-color: var(--success-color);
+      color: var(--bg-color);
+      font-weight: bold;
+    }
+    .single-input-area .controls-row button.add:hover {
+      background-color: #45a049;
+    }
+    .single-input-area .controls-row button.bogo {
+      background-color: var(--bogo-color);
+      color: var(--bg-color);
+      font-weight: bold;
+    }
+    .single-input-area .controls-row button.bogo:hover {
+      background-color: #e08a00;
+    }
+    .single-input-area .controls-row button.remove {
+      background-color: var(--error-color);
+      color: var(--bg-color);
+      font-weight: bold;
+    }
+    .single-input-area .controls-row button.remove:hover {
+      background-color: #da3b30;
+    }
+    .transaction-details {
+      margin-bottom: 30px;
+      padding: 15px 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--category-bg);
+      transition: background-color 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      overflow-x: auto;
+    }
+    .transaction-details h2 {
+      font-size: 1.4em;
+      color: var(--text-color);
+      margin-bottom: 15px;
+      transition: color 0.3s ease;
+    }
+    .transaction-details table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .transaction-details th,
+    .transaction-details td {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+      font-size: 0.95em;
+      color: var(--text-color);
+      transition: color 0.3s ease, border-color 0.3s ease;
+    }
+    .transaction-details th {
+      background-color: var(--control-bg);
+      color: var(--text-color);
+      font-weight: bold;
+    }
+    .transaction-details tr.bogo-transaction td {
+      background-color: rgba(255, 165, 0, 0.1);
+    }
+    .transaction-details tr.bogo-transaction:hover td {
+      background-color: rgba(255, 165, 0, 0.2);
+    }
+    .transaction-details button.reset {
+      width: auto;
+      margin-top: 15px;
+      margin-bottom: 0;
+      display: inline-block;
+      padding: 10px 15px;
+    }
+    .activity-log {
+      margin-top: 30px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-color);
+      transition: border-color 0.3s ease;
+    }
+    .activity-log h2 {
+      font-size: 1.4em;
+      color: var(--text-color);
+      margin-bottom: 10px;
+      transition: color 0.3s ease;
+    }
+    .activity-log ul {
+      list-style: none;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-left: 0;
+    }
+    .activity-log li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.95em;
+      color: #909090;
+      transition: color 0.3s ease, border-color 0.3s ease;
+    }
+    .activity-log li:last-child {
+      border-bottom: none;
+    }
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .toast {
+      background-color: rgba(0, 0, 0, 0.9);
+      color: var(--text-color);
+      padding: 12px 20px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: slideIn 0.5s forwards, fadeOut 0.5s forwards 2.5s;
+      display: flex;
+      align-items: center;
+      border-left: 4px solid var(--accent-color);
+    }
+    .toast.success {
+      background-color: var(--success-color);
+      color: var(--bg-color);
+      border-left-color: var(--bg-color);
+    }
+    .toast.error {
+      background-color: var(--error-color);
+      color: var(--bg-color);
+      border-left-color: var(--bg-color);
+    }
+    .toast i {
+      margin-right: 10px;
+    }
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+    @media (max-width: 900px) {
+      .single-input-area .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .single-input-area .controls-row button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .total {
+        font-size: 1.3em;
+      }
+    }
+    @media (max-width: 600px) {
+      .transaction-details table,
+      .transaction-details th,
+      .transaction-details td {
+        font-size: 0.8em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Point Tracking Tool</h1>
+    <div class="toast-container" id="toast-container"></div>
+    <div class="points-overview">
+      <span><i class="fas fa-phone-alt"></i> Phone Transfers: <span id="phone-count" class="points-display">0</span> points</span>
+      <span><i class="fas fa-desktop"></i> Screens: <span id="screens-count" class="points-display">0</span> points</span>
+      <span><i class="fas fa-signature"></i> E-Sign: <span id="esign-count" class="points-display">0</span> points</span>
+    </div>
+    <div class="single-input-area">
+      <label for="category-select">Category:</label>
+      <select id="category-select" aria-label="Select Category">
+        <option value="phone">Phone Transfers</option>
+        <option value="screens">Screens</option>
+        <option value="esign">E-Sign</option>
+      </select>
+      <!-- New input for the call's point value -->
+      <label for="points-worth">Call Points Value:</label>
+      <input type="number" id="points-worth" class="lead-input" placeholder="Enter Call Points Value" value="2" required aria-label="Call Points Value">
+      <label for="lead-input">Lead Number:</label>
+      <input type="text" id="lead-input" class="lead-input" placeholder="Enter Lead Number" required aria-label="Lead Number">
+      <label for="note-input">Note (Optional):</label>
+      <input type="text" id="note-input" class="lead-input" placeholder="Enter Note (Optional)" aria-label="Note (Optional)">
+      <div class="controls-row">
+        <button class="add" onclick="processPoints('add')"> <i class="fas fa-plus"></i> Add </button>
+        <button class="bogo" onclick="processPoints('bogo')" aria-label="Bonus Points - Doubles the points awarded!" title="Bonus Points - Doubles the points awarded!">  <i class="fas fa-gem"></i> Bonus (2x) </button>
+        <button class="remove" onclick="processPoints('remove')"> <i class="fas fa-minus"></i> Remove </button>
+      </div>
+    </div>
+    <div class="transaction-details">
+      <h2>Transaction Details</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Lead Number</th>
+            <th>Points</th>
+            <th>Category</th>
+            <th>Date Added</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody id="transaction-table-body"></tbody>
+      </table>
+      <button class="reset" onclick="downloadTransactions()">
+        <i class="fas fa-download"></i> Download Transactions
+      </button>
+    </div>
+    <div class="total">
+      Total Points: <span id="total-points" class="points-display">0</span>
+    </div>
+    <button class="reset" onclick="resetPoints()">
+      <i class="fas fa-redo"></i> Reset Points
+    </button>
+    <div class="activity-log">
+      <h2>Activity Log</h2>
+      <ul id="activity-list"></ul>
+    </div>
+  </div>
+  <audio id="success-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
+  <audio id="error-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
+  <script>
+    // Initialize points object and transactions array
+    let points = {
+      phone: 0,
+      screens: 0,
+      esign: 0
+    };
+    let transactions = [];
+    // Load points, transactions, and activity log from localStorage if available
+    window.onload = function() {
+      if (localStorage.getItem('points')) {
+        points = JSON.parse(localStorage.getItem('points'));
+        updateDisplays();
+      }
+      if (localStorage.getItem('transactions')) {
+        transactions = JSON.parse(localStorage.getItem('transactions'));
+        transactions.forEach(tx => addTransactionToTable(tx));
+      }
+      if (localStorage.getItem('activityLog')) {
+        const activityLog = JSON.parse(localStorage.getItem('activityLog'));
+        activityLog.forEach(entry => addActivity(entry));
+      }
+    };
+    // Update Points based on call points value multiplied by a factor
+    function updatePoints(category, factor, transactionType, isBOGO = false) {
+      const leadInput = document.getElementById('lead-input');
+      const noteInput = document.getElementById('note-input');
+      const pointsWorthInput = document.getElementById('points-worth');
+      const callPointsValue = parseFloat(pointsWorthInput.value.trim());
+      if (isNaN(callPointsValue) || callPointsValue <= 0) {
+        showErrorMessage("Please enter a valid Call Points Value.");
+        return;
+      }
+      const leadNumber = leadInput.value.trim();
+      const note = noteInput.value.trim();
+      if (leadNumber === "") {
+        showErrorMessage("Please enter a Lead Number to " + transactionType.toLowerCase() + " points for " + capitalize(category) + ".");
+        return;
+      }
+      const computedValue = callPointsValue * factor;
+      if (computedValue < 0 && points[category] < Math.abs(computedValue)) {
+        showErrorMessage(`Cannot remove ${Math.abs(computedValue)} points from ${capitalize(category)}. Not enough points.`);
+        return;
+      }
+      points[category] += computedValue;
+      updateDisplays();
+      savePoints();
+      const bogoText = isBOGO ? "BOGO: " : "";
+      const actionText = computedValue > 0 ? "Added" : "Removed";
+      const logMessage = `${bogoText}${actionText} ${Math.abs(computedValue)} points to ${capitalize(category)} (Lead: ${leadNumber}).`;
+      const toastMessage = logMessage;
+      if (computedValue > 0) {
+        showSuccessMessage(toastMessage);
+        triggerConfetti();
+      } else {
+        showSuccessMessage(toastMessage);
+        triggerConfetti('remove');
+      }
+      logActivity(logMessage);
+      addTransaction(category, leadNumber, computedValue, note, isBOGO);
+      leadInput.value = "";
+      noteInput.value = "";
+    }
+    // Process points based on action type
+    function processPoints(action) {
+      const categorySelect = document.getElementById('category-select');
+      const selectedCategory = categorySelect.value;
+      if (action === 'add') {
+        updatePoints(selectedCategory, 1, 'Add');
+      } else if (action === 'remove') {
+        updatePoints(selectedCategory, -1, 'Remove');
+      } else if (action === 'bogo') {
+        updatePoints(selectedCategory, 2, 'BOGO Add', true);
+      }
+    }
+    function updateDisplays() {
+      document.getElementById('phone-count').innerText = points.phone;
+      document.getElementById('screens-count').innerText = points.screens;
+      document.getElementById('esign-count').innerText = points.esign;
+      updateTotal();
+    }
+    function updateTotal() {
+      const total = points.phone + points.screens + points.esign;
+      document.getElementById('total-points').innerText = total;
+    }
+    function resetPoints() {
+      if (confirm("Are you sure you want to reset all points? This will clear all transactions and activity logs.")) {
+        points = { phone: 0, screens: 0, esign: 0 };
+        transactions = [];
+        updateDisplays();
+        savePoints();
+        saveTransactions();
+        showSuccessMessage("All points, transactions, and activity logs have been reset.");
+        logActivity("All points, transactions, and activity logs have been reset.");
+        clearActivityLog();
+        clearTransactionsTable();
+        triggerConfetti();
+      }
+    }
+    function clearTransactionsTable() {
+      document.getElementById('transaction-table-body').innerHTML = '';
+    }
+    function addTransaction(category, leadNumber, pointsValue, note, isBOGO = false) {
+      const transaction = {
+        leadNumber: leadNumber,
+        points: pointsValue,
+        category: capitalize(category),
+        date: new Date().toLocaleString(),
+        note: note,
+        isBOGO: isBOGO
+      };
+      transactions.push(transaction);
+      saveTransactions();
+      addTransactionToTable(transaction);
+    }
+    function addTransactionToTable(transaction) {
+      const tableBody = document.getElementById('transaction-table-body');
+      const row = document.createElement('tr');
+      if (transaction.isBOGO) {
+        row.classList.add('bogo-transaction');
+      }
+      const leadCell = document.createElement('td');
+      leadCell.textContent = transaction.leadNumber;
+      row.appendChild(leadCell);
+      const pointsCell = document.createElement('td');
+      pointsCell.textContent = transaction.points;
+      row.appendChild(pointsCell);
+      const categoryCell = document.createElement('td');
+      categoryCell.textContent = transaction.category;
+      row.appendChild(categoryCell);
+      const dateCell = document.createElement('td');
+      dateCell.textContent = transaction.date;
+      row.appendChild(dateCell);
+      const noteCell = document.createElement('td');
+      noteCell.textContent = transaction.note || "-";
+      row.appendChild(noteCell);
+      tableBody.prepend(row);
+    }
+    function savePoints() {
+      localStorage.setItem('points', JSON.stringify(points));
+    }
+    function saveTransactions() {
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    function showSuccessMessage(message) {
+      createToast(message, 'success');
+      playSound('success');
+    }
+    function showErrorMessage(message) {
+      createToast(message, 'error');
+      playSound('error');
+    }
+    function createToast(message, type) {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      if (type === 'success') {
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+      } else if (type === 'error') {
+        toast.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+      }
+      toastContainer.appendChild(toast);
+      toast.addEventListener('animationend', (event) => {
+        if (event.animationName === 'fadeOut') {
+          toast.remove();
+        }
+      });
+    }
+    function logActivity(message) {
+      const timestamp = new Date().toLocaleString();
+      const activity = `${timestamp}: ${message}`;
+      addActivity(activity);
+      let activityLog = [];
+      if (localStorage.getItem('activityLog')) {
+        activityLog = JSON.parse(localStorage.getItem('activityLog'));
+      }
+      activityLog.push(activity);
+      localStorage.setItem('activityLog', JSON.stringify(activityLog));
+    }
+    function addActivity(activity) {
+      const activityList = document.getElementById('activity-list');
+      const listItem = document.createElement('li');
+      listItem.textContent = activity;
+      activityList.prepend(listItem);
+    }
+    function clearActivityLog() {
+      localStorage.removeItem('activityLog');
+      document.getElementById('activity-list').innerHTML = '';
+    }
+    function triggerConfetti(action = 'add') {
+      if (action === 'add') {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } else if (action === 'remove') {
+        confetti({
+          particleCount: 50,
+          spread: 45,
+          origin: { y: 0.6 },
+          colors: ['#e74c3c']
+        });
+      }
+    }
+    function playSound(type) {
+      if (type === 'success') {
+        document.getElementById('success-sound').play();
+      } else if (type === 'error') {
+        document.getElementById('error-sound').play();
+      }
+    }
+    function downloadTransactions() {
+      if (transactions.length === 0) {
+        showErrorMessage("No transactions to download.");
+        return;
+      }
+      const csvData = convertTransactionsToCSV(transactions);
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'transactions.csv');
+      link.click();
+    }
+    function convertTransactionsToCSV(transactionsArray) {
+      const headers = ["Lead Number", "Points", "Category", "Date Added", "Note", "BOGO"];
+      const csvRows = [];
+      csvRows.push(headers.join(','));
+      for (const transaction of transactionsArray) {
+        const values = [
+          `"${transaction.leadNumber}"`,
+          transaction.points,
+          transaction.category,
+          transaction.date,
+          `"${transaction.note ? transaction.note : ''}"`,
+          transaction.isBOGO ? 'Yes' : 'No'
+        ];
+        csvRows.push(values.join(','));
+      }
+      return csvRows.join('\r\n');
+    }
+  </script>
+</body>
+</html>
