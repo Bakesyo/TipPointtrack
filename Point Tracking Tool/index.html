@@ -336,7 +336,7 @@
         <option value="screens">Screens</option>
         <option value="esign">E-Sign</option>
       </select>
-      <!-- New input for the call's point value -->
+      <!-- Input for how many points the call is worth -->
       <label for="points-worth">Call Points Value:</label>
       <input
         type="number"
@@ -405,19 +405,15 @@
       <ul id="activity-list"></ul>
     </div>
   </div>
-  <!-- Audio for notifications -->
+  <!-- Audio notifications -->
   <audio id="success-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
   <audio id="error-sound" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" preload="auto"></audio>
   <script>
-    // Initialize points object and transactions array
-    let points = {
-      phone: 0,
-      screens: 0,
-      esign: 0
-    };
+    // Initialize points and transactions
+    let points = { phone: 0, screens: 0, esign: 0 };
     let transactions = [];
 
-    // Load points, transactions, and activity log from localStorage if available
+    // Load saved data from localStorage on page load
     window.onload = function() {
       if (localStorage.getItem('points')) {
         points = JSON.parse(localStorage.getItem('points'));
@@ -433,7 +429,7 @@
       }
     };
 
-    // Update points based on call points value multiplied by a factor
+    // Update points using the Call Points Value multiplied by a factor
     function updatePoints(category, factor, transactionType, isBOGO = false) {
       const leadInput = document.getElementById('lead-input');
       const noteInput = document.getElementById('note-input');
@@ -479,12 +475,12 @@
       logActivity(logMessage);
       addTransaction(category, leadNumber, computedValue, note, isBOGO);
 
-      // Clear input fields after processing
+      // Clear input fields
       leadInput.value = "";
       noteInput.value = "";
     }
 
-    // Process points based on action type
+    // Process points based on the button clicked
     function processPoints(action) {
       const categorySelect = document.getElementById('category-select');
       const selectedCategory = categorySelect.value;
